@@ -1,16 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
-import { Page, Language } from './types';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import PlanVisit from './pages/PlanVisit';
-import Parties from './pages/Parties';
-import SchoolTrips from './pages/SchoolTrips';
-import Gallery from './pages/Gallery';
-import Contact from './pages/Contact';
-import AdminDashboard from './pages/AdminDashboard';
-import Login from './pages/Login';
+import { Page, Language } from './types.ts';
+import Header from './components/Header.tsx';
+import Footer from './components/Footer.tsx';
+import Home from './pages/Home.tsx';
+import PlanVisit from './pages/PlanVisit.tsx';
+import Parties from './pages/Parties.tsx';
+import SchoolTrips from './pages/SchoolTrips.tsx';
+import Gallery from './pages/Gallery.tsx';
+import Contact from './pages/Contact.tsx';
+import AdminDashboard from './pages/AdminDashboard.tsx';
+import Login from './pages/Login.tsx';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>(Page.Home);
