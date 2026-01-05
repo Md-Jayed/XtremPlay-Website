@@ -1,0 +1,7 @@
+{
+  "name": "Xtreme Play Redesign",
+  "description": "A modern, high-performance entertainment website for Xtreme Play, tailored for the Saudi market with localized content, RTL support, and a comprehensive booking-focused UI.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
