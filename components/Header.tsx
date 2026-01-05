@@ -18,8 +18,8 @@ const Header: React.FC<HeaderProps> = ({ lang, setLang, currentPage, setCurrentP
   };
 
   return (
-    <header className="bg-white shadow-md fixed top-0 left-0 right-0 z-[100] h-20 transition-all duration-300">
-      <div className="container mx-auto px-4 h-full flex items-center justify-between">
+    <header className="bg-white fixed top-0 left-0 right-0 z-[100] h-20 shadow-sm border-b border-slate-100">
+      <div className="container mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
         {/* Logo */}
         <div 
           className="flex items-center cursor-pointer group shrink-0"
@@ -33,15 +33,15 @@ const Header: React.FC<HeaderProps> = ({ lang, setLang, currentPage, setCurrentP
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center space-x-1 rtl:space-x-reverse mx-8">
+        <nav className="hidden lg:flex items-center space-x-6 rtl:space-x-reverse mx-8">
           {NAV_ITEMS.map((item) => (
             <button
               key={item.id}
               onClick={() => setCurrentPage(item.id)}
-              className={`px-4 py-2 rounded-full text-[13px] font-black uppercase tracking-wider transition-all duration-200 ${
+              className={`text-[12px] font-bold uppercase tracking-wider transition-all duration-200 ${
                 currentPage === item.id 
                 ? 'text-red-600' 
-                : 'text-slate-800 hover:text-red-600'
+                : 'text-slate-900 hover:text-red-600'
               }`}
             >
               {lang === Language.EN ? item.labelEn : item.labelAr}
@@ -50,27 +50,27 @@ const Header: React.FC<HeaderProps> = ({ lang, setLang, currentPage, setCurrentP
         </nav>
 
         {/* Actions */}
-        <div className="flex items-center space-x-4 rtl:space-x-reverse shrink-0">
+        <div className="flex items-center space-x-3 rtl:space-x-reverse shrink-0">
           <button
             onClick={toggleLang}
-            className="bg-red-600 text-white px-6 py-2 rounded font-black text-sm uppercase transition-all hover:bg-red-700 active:scale-95 shadow-lg shadow-red-600/20"
+            className="bg-[#E2352B] text-white px-4 md:px-8 py-2 md:py-2.5 rounded-lg font-black text-xs md:text-sm uppercase transition-all hover:brightness-110 active:scale-95 shadow-md"
           >
             {lang === Language.EN ? 'عربي' : 'English'}
           </button>
 
           {/* Mobile Menu Toggle */}
           <button 
-            className="lg:hidden p-2 text-slate-800 focus:outline-none"
+            className="lg:hidden p-2 text-slate-900 focus:outline-none"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'} text-2xl`}></i>
+            <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars-staggered'} text-2xl`}></i>
           </button>
         </div>
       </div>
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className="lg:hidden absolute top-20 left-0 w-full bg-white shadow-2xl py-6 px-4 animate-in slide-in-from-top-4 duration-200">
+        <div className="lg:hidden absolute top-20 left-0 w-full bg-white shadow-2xl py-8 px-6 animate-in slide-in-from-top-4 duration-300">
           <div className="flex flex-col space-y-2">
             {NAV_ITEMS.map((item) => (
               <button
@@ -79,10 +79,10 @@ const Header: React.FC<HeaderProps> = ({ lang, setLang, currentPage, setCurrentP
                   setCurrentPage(item.id);
                   setIsMenuOpen(false);
                 }}
-                className={`w-full text-left rtl:text-right px-6 py-4 rounded-xl text-lg font-bold ${
+                className={`w-full text-left rtl:text-right px-6 py-4 rounded-xl text-lg font-black uppercase tracking-widest transition-colors ${
                   currentPage === item.id 
-                  ? 'bg-red-600 text-white' 
-                  : 'text-slate-700 hover:bg-slate-100'
+                  ? 'bg-red-600 text-white shadow-lg' 
+                  : 'text-slate-900 hover:bg-slate-50'
                 }`}
               >
                 {lang === Language.EN ? item.labelEn : item.labelAr}

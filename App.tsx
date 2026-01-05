@@ -68,8 +68,8 @@ const App: React.FC = () => {
       </main>
       <Footer lang={lang} onAdminClick={() => setCurrentPage(Page.Admin)} />
       
-      {/* Floating WhatsApp Button - Left Corner */}
-      <div className="fixed bottom-6 left-6 z-[90]">
+      {/* Floating WhatsApp Button - Moved to Right Corner */}
+      <div className="fixed bottom-6 right-6 z-[90]">
         <a 
           href="https://wa.me/966572321849" 
           target="_blank" 
@@ -78,14 +78,15 @@ const App: React.FC = () => {
           aria-label="Contact us on WhatsApp"
         >
           <i className="fab fa-whatsapp text-3xl md:text-4xl"></i>
-          <span className={`absolute ${lang === Language.AR ? 'right-full mr-4' : 'left-full ml-4'} bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none hidden md:block`}>
+          {/* Tooltip flipped to show on the left of the button since button is on the right edge */}
+          <span className={`absolute ${lang === Language.AR ? 'left-full ml-4' : 'right-full mr-4'} bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none hidden md:block`}>
             {lang === Language.EN ? 'Chat with us!' : 'تواصل معنا!'}
           </span>
         </a>
       </div>
 
-      {/* Floating Booking CTA for Mobile - Right Corner */}
-      <div className="fixed bottom-6 right-6 md:hidden z-50">
+      {/* Floating Booking CTA for Mobile - Moved to Left Corner to avoid overlap */}
+      <div className="fixed bottom-6 left-6 md:hidden z-50">
         <button 
           onClick={() => setCurrentPage(Page.Contact)}
           className="bg-red-600 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center"
