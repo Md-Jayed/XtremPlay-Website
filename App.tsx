@@ -68,7 +68,23 @@ const App: React.FC = () => {
       </main>
       <Footer lang={lang} onAdminClick={() => setCurrentPage(Page.Admin)} />
       
-      {/* Floating Booking CTA for Mobile */}
+      {/* Floating WhatsApp Button - Left Corner */}
+      <div className="fixed bottom-6 left-6 z-[90]">
+        <a 
+          href="https://wa.me/966572321849" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="bg-[#25D366] text-white w-14 h-14 md:w-16 md:h-16 rounded-full shadow-[0_10px_25px_-5px_rgba(37,211,102,0.6)] hover:scale-110 active:scale-95 transition-all flex items-center justify-center group"
+          aria-label="Contact us on WhatsApp"
+        >
+          <i className="fab fa-whatsapp text-3xl md:text-4xl"></i>
+          <span className={`absolute ${lang === Language.AR ? 'right-full mr-4' : 'left-full ml-4'} bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none hidden md:block`}>
+            {lang === Language.EN ? 'Chat with us!' : 'تواصل معنا!'}
+          </span>
+        </a>
+      </div>
+
+      {/* Floating Booking CTA for Mobile - Right Corner */}
       <div className="fixed bottom-6 right-6 md:hidden z-50">
         <button 
           onClick={() => setCurrentPage(Page.Contact)}

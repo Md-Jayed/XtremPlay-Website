@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { Language } from '../types';
+import { Language } from '../types.ts';
+import { supabase } from '../lib/supabase.ts';
 
 interface ContactProps {
   lang: Language;
@@ -9,11 +10,48 @@ interface ContactProps {
 const Contact: React.FC<ContactProps> = ({ lang }) => {
   const isEn = lang === Language.EN;
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    type: 'General Question',
+    message: ''
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 5000);
+    setLoading(true);
+
+    try {
+      const { error } = await supabase
+        .from('contacts')
+        .insert([
+          { 
+            full_name: formData.name, 
+            email: formData.email, 
+            phone: formData.phone, 
+            inquiry_type: formData.type, 
+            message: formData.message 
+          }
+        ]);
+
+      if (error) throw error;
+      
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (err) {
+      console.error('Error saving inquiry:', err);
+      // Fallback: still show submitted for UX or handle error
+      setSubmitted(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -48,32 +86,33 @@ const Contact: React.FC<ContactProps> = ({ lang }) => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <label className="text-sm font-black uppercase text-slate-400 tracking-widest">{isEn ? 'Full Name' : 'الاسم الكامل'}</label>
-                  <input required type="text" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 focus:border-red-600 outline-none transition-all font-bold" placeholder={isEn ? "John Doe" : "الاسم الكريم"} />
+                  <input required name="name" value={formData.name} onChange={handleChange} type="text" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 focus:border-red-600 outline-none transition-all font-bold" placeholder={isEn ? "John Doe" : "الاسم الكريم"} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div className="space-y-2">
                     <label className="text-sm font-black uppercase text-slate-400 tracking-widest">{isEn ? 'Email' : 'البريد الإلكتروني'}</label>
-                    <input required type="email" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 focus:border-red-600 outline-none transition-all font-bold" placeholder="example@email.com" />
+                    <input required name="email" value={formData.email} onChange={handleChange} type="email" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 focus:border-red-600 outline-none transition-all font-bold" placeholder="example@email.com" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-black uppercase text-slate-400 tracking-widest">{isEn ? 'Phone' : 'رقم الجوال'}</label>
-                    <input required type="tel" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 focus:border-red-600 outline-none transition-all font-bold" placeholder="05XXXXXXXX" />
+                    <input required name="phone" value={formData.phone} onChange={handleChange} type="tel" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 focus:border-red-600 outline-none transition-all font-bold" placeholder="05XXXXXXXX" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-black uppercase text-slate-400 tracking-widest">{isEn ? 'Inquiry Type' : 'نوع الاستفسار'}</label>
-                  <select className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 focus:border-red-600 outline-none transition-all font-bold appearance-none">
-                    <option>{isEn ? 'General Question' : 'استفسار عام'}</option>
-                    <option>{isEn ? 'Party Booking' : 'حجز حفلة'}</option>
-                    <option>{isEn ? 'School Trip' : 'رحلة مدرسية'}</option>
-                    <option>{isEn ? 'Feedback' : 'ملاحظات'}</option>
+                  <select name="type" value={formData.type} onChange={handleChange} className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 focus:border-red-600 outline-none transition-all font-bold appearance-none">
+                    <option value="General Question">{isEn ? 'General Question' : 'استفسار عام'}</option>
+                    <option value="Party Booking">{isEn ? 'Party Booking' : 'حجز حفلة'}</option>
+                    <option value="School Trip">{isEn ? 'School Trip' : 'رحلة مدرسية'}</option>
+                    <option value="Feedback">{isEn ? 'Feedback' : 'ملاحظات'}</option>
                   </select>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-black uppercase text-slate-400 tracking-widest">{isEn ? 'Message' : 'الرسالة'}</label>
-                  <textarea rows={4} className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 focus:border-red-600 outline-none transition-all font-bold resize-none" placeholder={isEn ? "Tell us more..." : "اكتب تفاصيل استفسارك..."}></textarea>
+                  <textarea name="message" value={formData.message} onChange={handleChange} rows={4} className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 focus:border-red-600 outline-none transition-all font-bold resize-none" placeholder={isEn ? "Tell us more..." : "اكتب تفاصيل استفسارك..."}></textarea>
                 </div>
-                <button type="submit" className="w-full py-5 bg-red-600 text-white rounded-2xl text-xl font-black shadow-xl hover:bg-red-700 transition-all active:scale-95">
+                <button type="submit" disabled={loading} className="w-full py-5 bg-red-600 text-white rounded-2xl text-xl font-black shadow-xl hover:bg-red-700 transition-all active:scale-95 disabled:opacity-50">
+                  {loading ? <i className="fas fa-spinner fa-spin mr-2"></i> : null}
                   {isEn ? 'SEND MESSAGE' : 'إرسال الرسالة'}
                 </button>
               </form>

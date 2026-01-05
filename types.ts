@@ -29,3 +29,9 @@ export interface PricingCard {
   featuresAr: string[];
   bestValue?: boolean;
 }
+
+export interface GalleryImage {
+  id: number;
+  url: string;
+  created_at?: string;
+}

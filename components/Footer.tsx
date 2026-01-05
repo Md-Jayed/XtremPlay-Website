@@ -26,8 +26,8 @@ const Footer: React.FC<FooterProps> = ({ lang, onAdminClick }) => {
           {/* Brand Info */}
           <div className="space-y-4">
             <img 
-              src="https://www.xtremeplay.sa/wp-content/uploads/2020/11/xtreme-logo-300x127.png" 
-              className="h-12 w-auto object-contain brightness-0 invert" 
+              src="https://static.wixstatic.com/media/aa4fce_e5b1003f2b574fb391b0321341f54d5d~mv2.png/v1/fill/w_186,h_83,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/logo.png" 
+              className="h-12 w-auto" 
               alt="Logo" 
             />
             <p className="text-slate-400 max-w-sm">
@@ -87,7 +87,7 @@ const Footer: React.FC<FooterProps> = ({ lang, onAdminClick }) => {
           <div className="flex items-center gap-4">
             <span className="text-slate-400 text-xs uppercase">{content.owned}</span>
             <div className="bg-white/10 p-2 rounded">
-                <img src="https://www.xtremeplay.sa/wp-content/uploads/2020/11/VIM-Logo-01-300x127.png" alt="ViM" className="h-6" />
+                <img src="https://static.wixstatic.com/media/673ddf_866232045ff645168d98a1db6dbe39db~mv2.png/v1/fill/w_145,h_71,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Vim-Logo.png" alt="ViM" className="h-6" />
             </div>
           </div>
         </div>
