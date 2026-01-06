@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Language, GalleryImage } from '../types.ts';
 import { GALLERY_IMAGES as STATIC_FALLBACK } from '../constants.tsx';
 import { supabase } from '../lib/supabase.ts';
+import PageBanner from '../components/PageBanner.tsx';
 
 interface GalleryProps {
   lang: Language;
@@ -30,7 +31,6 @@ const Gallery: React.FC<GalleryProps> = ({ lang }) => {
       if (data && data.length > 0) {
         setImages(data);
       } else {
-        // Fallback to static if DB is empty
         const fallback = STATIC_FALLBACK.map((url, i) => ({ id: i, url }));
         setImages(fallback);
       }
@@ -39,13 +39,10 @@ const Gallery: React.FC<GalleryProps> = ({ lang }) => {
       const fallback = STATIC_FALLBACK.map((url, i) => ({ id: i, url }));
       setImages(fallback);
     } finally {
-      // Simulate slightly longer loading for better UX demonstration if needed, 
-      // but here we just follow the data.
       setLoading(false);
     }
   };
 
-  // Skeleton Loader Component
   const GallerySkeleton = () => (
     <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
       {[...Array(9)].map((_, i) => (
@@ -62,22 +59,12 @@ const Gallery: React.FC<GalleryProps> = ({ lang }) => {
 
   return (
     <div className="animate-in fade-in duration-500">
-      <section className="bg-slate-900 py-24 text-center text-white relative overflow-hidden">
-        {/* Decorative background elements */}
-        <div className="absolute top-0 left-0 w-64 h-64 bg-red-600/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-600/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <h1 className="text-5xl md:text-7xl font-black mb-6 animate-reveal-down uppercase italic">
-             {isEn ? 'Gallery' : 'معرض الصور'}
-          </h1>
-          <p className="text-xl text-slate-300 max-w-2xl mx-auto animate-reveal-up delay-200">
-             {isEn 
-              ? 'See the energy, the flips, and the smiles. Our park is built for unforgettable moments.' 
-              : 'شاهد الطاقة، الشقلبات، والابتسامات. تم بناء منتزهنا للحظات لا تُنسى.'}
-          </p>
-        </div>
-      </section>
+      <PageBanner 
+        title={isEn ? 'Gallery' : 'معرض الصور'} 
+        subtitle={isEn 
+          ? 'See the energy, the flips, and the smiles. Our park is built for unforgettable moments.' 
+          : 'شاهد الطاقة، الشقلبات، والابتسامات. تم بناء منتزهنا للحظات لا تُنسى.'}
+      />
 
       <section className="py-20 bg-white min-h-[600px]">
         <div className="container mx-auto px-4">
@@ -110,7 +97,7 @@ const Gallery: React.FC<GalleryProps> = ({ lang }) => {
           
           {!loading && images.length === 0 && (
             <div className="text-center py-32 space-y-4 animate-reveal-up">
-              <i className="fas fa-images text-6xl text-slate-200"></i>
+              <i className="fas fa-images text-6xl text-slate-200 animate-float"></i>
               <p className="text-slate-400 font-bold text-xl uppercase tracking-widest">
                 {isEn ? 'No images available' : 'لا توجد صور متاحة'}
               </p>

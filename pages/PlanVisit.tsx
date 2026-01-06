@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Language } from '../types';
+import PageBanner from '../components/PageBanner.tsx';
 
 interface PlanVisitProps {
   lang: Language;
@@ -11,30 +12,20 @@ const PlanVisit: React.FC<PlanVisitProps> = ({ lang }) => {
 
   return (
     <div className="animate-in slide-in-from-bottom-8 duration-500">
-      {/* Header */}
-      <section className="bg-slate-900 py-20 text-center relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-           <img src="https://picsum.photos/id/1035/1920/600" className="w-full h-full object-cover" alt="bg" />
-        </div>
-        <div className="container mx-auto px-4 relative z-10">
-          <h1 className="text-4xl md:text-6xl font-black text-white mb-6">
-            {isEn ? 'Plan Your Visit' : 'خطط لزيارتك'}
-          </h1>
-          <p className="text-slate-300 max-w-2xl mx-auto text-lg">
-            {isEn 
-              ? 'Test your jumping skills on various obstacles, shoot hoops, or dive into the largest foam pits in Saudi!'
-              : 'اختبر مهاراتك في القفز على عوائق متنوعة، سجل الأهداف، أو انطلق في أكبر حفر رغوية في المملكة!'}
-          </p>
-        </div>
-      </section>
+      <PageBanner 
+        title={isEn ? 'Plan Your Visit' : 'خطط لزيارتك'} 
+        subtitle={isEn 
+          ? 'Test your jumping skills on various obstacles or dive into the largest foam pits in Saudi!'
+          : 'اختبر مهاراتك في القفز على عوائق متنوعة أو انطلق في أكبر حفر رغوية في المملكة!'}
+      />
 
       {/* Content Grid */}
       <section className="py-24 container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
           {/* Location */}
-          <div className="bg-slate-900 text-white rounded-3xl p-10 flex flex-col items-center text-center shadow-2xl">
-            <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mb-8">
+          <div className="bg-slate-900 text-white rounded-3xl p-10 flex flex-col items-center text-center shadow-2xl animate-reveal-up delay-100">
+            <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mb-8 animate-float">
               <i className="fas fa-location-dot text-2xl"></i>
             </div>
             <h3 className="text-2xl font-black mb-4 uppercase tracking-wider">{isEn ? 'Location' : 'الموقع'}</h3>
@@ -53,8 +44,8 @@ const PlanVisit: React.FC<PlanVisitProps> = ({ lang }) => {
           </div>
 
           {/* Timings */}
-          <div className="bg-amber-400 text-slate-900 rounded-3xl p-10 flex flex-col items-center text-center shadow-2xl">
-            <div className="w-16 h-16 bg-slate-900 text-white rounded-full flex items-center justify-center mb-8">
+          <div className="bg-amber-400 text-slate-900 rounded-3xl p-10 flex flex-col items-center text-center shadow-2xl animate-reveal-up delay-200">
+            <div className="w-16 h-16 bg-slate-900 text-white rounded-full flex items-center justify-center mb-8 animate-float">
               <i className="fas fa-clock text-2xl"></i>
             </div>
             <h3 className="text-2xl font-black mb-6 uppercase tracking-wider">{isEn ? 'Timings' : 'الأوقات'}</h3>
@@ -72,8 +63,8 @@ const PlanVisit: React.FC<PlanVisitProps> = ({ lang }) => {
           </div>
 
           {/* Pricing */}
-          <div className="bg-red-600 text-white rounded-3xl p-10 flex flex-col items-center text-center shadow-2xl">
-            <div className="w-16 h-16 bg-white text-red-600 rounded-full flex items-center justify-center mb-8">
+          <div className="bg-red-600 text-white rounded-3xl p-10 flex flex-col items-center text-center shadow-2xl animate-reveal-up delay-300">
+            <div className="w-16 h-16 bg-white text-red-600 rounded-full flex items-center justify-center mb-8 animate-float">
               <i className="fas fa-ticket text-2xl"></i>
             </div>
             <h3 className="text-2xl font-black mb-6 uppercase tracking-wider">{isEn ? 'Entry Access' : 'تذكرة الدخول'}</h3>
@@ -93,9 +84,9 @@ const PlanVisit: React.FC<PlanVisitProps> = ({ lang }) => {
       </section>
 
       {/* Note Section */}
-      <section className="py-16 bg-slate-50 border-y border-slate-200">
-        <div className="container mx-auto px-4 max-w-4xl text-center">
-          <i className="fas fa-info-circle text-4xl text-blue-600 mb-6"></i>
+      <section className="py-16 bg-slate-50 border-y border-slate-200 overflow-hidden">
+        <div className="container mx-auto px-4 max-w-4xl text-center animate-reveal-up">
+          <i className="fas fa-info-circle text-4xl text-blue-600 mb-6 animate-pulse-soft"></i>
           <p className="text-slate-600 text-lg leading-relaxed italic">
             {isEn 
               ? 'Safety is our top priority. All visitors must wear Xtreme Play grip socks and follow our safety guidelines. Children under 12 must be supervised by an adult at all times.'

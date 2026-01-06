@@ -2,6 +2,7 @@
 import React from 'react';
 import { Language } from '../types';
 import { PARTY_PACKAGES } from '../constants';
+import PageBanner from '../components/PageBanner.tsx';
 
 interface PartiesProps {
   lang: Language;
@@ -12,18 +13,12 @@ const Parties: React.FC<PartiesProps> = ({ lang }) => {
 
   return (
     <div className="overflow-x-hidden">
-      <section className="bg-slate-900 py-24 text-center text-white relative">
-        <div className="container mx-auto px-4 relative z-10 animate-reveal-down">
-          <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight">
-             {isEn ? 'Parties' : 'الحفلات'}
-          </h1>
-          <p className="text-xl text-slate-300 max-w-2xl mx-auto animate-reveal-up delay-200">
-            {isEn 
-              ? 'Celebrate your special moments in a high-energy environment. We offer a variety of packages for every need.'
-              : 'احتفل بلحظاتك الخاصة في بيئة مليئة بالطاقة. نقدم مجموعة متنوعة من الباقات لكل الاحتياجات.'}
-          </p>
-        </div>
-      </section>
+      <PageBanner 
+        title={isEn ? 'Parties' : 'الحفلات'} 
+        subtitle={isEn 
+          ? 'Celebrate your special moments in a high-energy environment. We offer a variety of packages for every need.'
+          : 'احتفل بلحظاتك الخاصة في بيئة مليئة بالطاقة. نقدم مجموعة متنوعة من الباقات لكل الاحتياجات.'}
+      />
 
       <section className="py-24 bg-white">
         <div className="container mx-auto px-4">

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Language } from '../types.ts';
 import { supabase } from '../lib/supabase.ts';
+import PageBanner from '../components/PageBanner.tsx';
 
 interface ContactProps {
   lang: Language;
@@ -55,18 +56,12 @@ const Contact: React.FC<ContactProps> = ({ lang }) => {
 
   return (
     <div className="overflow-x-hidden">
-      <section className="bg-slate-900 py-24 text-center text-white relative">
-        <div className="container mx-auto px-4 animate-reveal-down">
-          <h1 className="text-5xl md:text-7xl font-black mb-6 uppercase italic">
-             {isEn ? 'Get In Touch' : 'تواصل معنا'}
-          </h1>
-          <p className="text-xl text-slate-300 max-w-2xl mx-auto animate-reveal-up delay-200">
-            {isEn 
-              ? 'Have a question or want to book a private event? Fill out the form below.'
-              : 'لديك سؤال أو ترغب في حجز فعالية خاصة؟ املأ النموذج أدناه.'}
-          </p>
-        </div>
-      </section>
+      <PageBanner 
+        title={isEn ? 'Get In Touch' : 'تواصل معنا'} 
+        subtitle={isEn 
+          ? 'Have a question or want to book a private event? Fill out the form below.'
+          : 'لديك سؤال أو ترغب في حجز فعالية خاصة؟ املأ النموذج أدناه.'}
+      />
 
       <section className="py-24 container mx-auto px-4">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16">
