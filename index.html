@@ -15,6 +15,52 @@
       [dir="rtl"] {
         font-family: 'Noto Sans Arabic', sans-serif;
       }
+      
+      /* Animation Keyframes */
+      @keyframes reveal-up {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes reveal-down {
+        from { opacity: 0; transform: translateY(-30px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes reveal-left {
+        from { opacity: 0; transform: translateX(30px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes reveal-right {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      @keyframes pulse-soft {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.9; }
+      }
+      @keyframes zoom-bg {
+        from { transform: scale(1); }
+        to { transform: scale(1.1); }
+      }
+
+      /* Utility Classes */
+      .animate-reveal-up { animation: reveal-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      .animate-reveal-down { animation: reveal-down 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      .animate-reveal-left { animation: reveal-left 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      .animate-reveal-right { animation: reveal-right 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      .animate-float { animation: float 3s ease-in-out infinite; }
+      .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+      .animate-zoom-bg { animation: zoom-bg 20s linear infinite alternate; }
+      
+      .delay-100 { animation-delay: 100ms; }
+      .delay-200 { animation-delay: 200ms; }
+      .delay-300 { animation-delay: 300ms; }
+      .delay-400 { animation-delay: 400ms; }
+      .delay-500 { animation-delay: 500ms; }
+
       @keyframes shake {
         0%, 100% { transform: translateX(0); }
         25% { transform: translateX(-5px); }

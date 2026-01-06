@@ -39,18 +39,39 @@ const Gallery: React.FC<GalleryProps> = ({ lang }) => {
       const fallback = STATIC_FALLBACK.map((url, i) => ({ id: i, url }));
       setImages(fallback);
     } finally {
+      // Simulate slightly longer loading for better UX demonstration if needed, 
+      // but here we just follow the data.
       setLoading(false);
     }
   };
 
+  // Skeleton Loader Component
+  const GallerySkeleton = () => (
+    <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+      {[...Array(9)].map((_, i) => (
+        <div 
+          key={i} 
+          className="break-inside-avoid w-full rounded-3xl bg-slate-100 animate-pulse border border-slate-50"
+          style={{ height: `${[280, 420, 340, 390, 310, 460][i % 6]}px` }}
+        >
+          <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200/50 rounded-3xl"></div>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <div className="animate-in fade-in duration-500">
-      <section className="bg-slate-900 py-24 text-center text-white">
-        <div className="container mx-auto px-4">
-          <h1 className="text-5xl md:text-7xl font-black mb-6">
+      <section className="bg-slate-900 py-24 text-center text-white relative overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute top-0 left-0 w-64 h-64 bg-red-600/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-600/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <h1 className="text-5xl md:text-7xl font-black mb-6 animate-reveal-down uppercase italic">
              {isEn ? 'Gallery' : 'معرض الصور'}
           </h1>
-          <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+          <p className="text-xl text-slate-300 max-w-2xl mx-auto animate-reveal-up delay-200">
              {isEn 
               ? 'See the energy, the flips, and the smiles. Our park is built for unforgettable moments.' 
               : 'شاهد الطاقة، الشقلبات، والابتسامات. تم بناء منتزهنا للحظات لا تُنسى.'}
@@ -58,18 +79,17 @@ const Gallery: React.FC<GalleryProps> = ({ lang }) => {
         </div>
       </section>
 
-      <section className="py-20 bg-white min-h-[400px]">
+      <section className="py-20 bg-white min-h-[600px]">
         <div className="container mx-auto px-4">
           {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <i className="fas fa-spinner fa-spin text-4xl text-red-600"></i>
-            </div>
+            <GallerySkeleton />
           ) : (
             <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
-              {images.map((img) => (
+              {images.map((img, idx) => (
                 <div 
                   key={img.id} 
-                  className="break-inside-avoid relative group cursor-pointer overflow-hidden rounded-3xl border border-slate-100"
+                  className={`break-inside-avoid relative group cursor-pointer overflow-hidden rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 animate-reveal-up`}
+                  style={{ animationDelay: `${idx * 50}ms` }}
                   onClick={() => setSelectedImg(img.url)}
                 >
                   <img 
@@ -78,11 +98,22 @@ const Gallery: React.FC<GalleryProps> = ({ lang }) => {
                     className="w-full object-cover group-hover:scale-110 transition-transform duration-700"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-red-600/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <i className="fas fa-expand text-white text-4xl"></i>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center">
+                    <div className="bg-white/20 backdrop-blur-md p-4 rounded-full scale-50 group-hover:scale-100 transition-transform duration-500">
+                      <i className="fas fa-expand-alt text-white text-2xl"></i>
+                    </div>
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+          
+          {!loading && images.length === 0 && (
+            <div className="text-center py-32 space-y-4 animate-reveal-up">
+              <i className="fas fa-images text-6xl text-slate-200"></i>
+              <p className="text-slate-400 font-bold text-xl uppercase tracking-widest">
+                {isEn ? 'No images available' : 'لا توجد صور متاحة'}
+              </p>
             </div>
           )}
         </div>
@@ -91,17 +122,20 @@ const Gallery: React.FC<GalleryProps> = ({ lang }) => {
       {/* Lightbox */}
       {selectedImg && (
         <div 
-          className="fixed inset-0 z-[1000] bg-black/90 flex items-center justify-center p-4 animate-in fade-in duration-300"
+          className="fixed inset-0 z-[1000] bg-slate-950/95 flex items-center justify-center p-4 md:p-10 backdrop-blur-sm animate-in fade-in duration-300"
           onClick={() => setSelectedImg(null)}
         >
-          <button className="absolute top-8 right-8 text-white text-3xl hover:scale-125 transition-transform">
+          <button className="absolute top-6 right-6 md:top-10 md:right-10 text-white/50 hover:text-white text-3xl transition-all hover:rotate-90">
             <i className="fas fa-times"></i>
           </button>
-          <img 
-            src={selectedImg} 
-            className="max-w-full max-h-[90vh] rounded-xl shadow-2xl" 
-            alt="Expanded" 
-          />
+          <div className="relative group max-w-5xl w-full flex justify-center">
+            <img 
+              src={selectedImg} 
+              className="max-w-full max-h-[85vh] rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 object-contain animate-in zoom-in-95 duration-300" 
+              alt="Expanded" 
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
         </div>
       )}
     </div>
