@@ -1,14 +1,15 @@
 
 import React, { useEffect, useState } from 'react';
-import { Language } from '../types';
+import { Language, CartItem } from '../types';
 import { supabase } from '../lib/supabase.ts';
 import PageBanner from '../components/PageBanner.tsx';
 
 interface PlanVisitProps {
   lang: Language;
+  onAddToCart: (item: Omit<CartItem, 'quantity'>, redirect?: boolean) => void;
 }
 
-const PlanVisit: React.FC<PlanVisitProps> = ({ lang }) => {
+const PlanVisit: React.FC<PlanVisitProps> = ({ lang, onAddToCart }) => {
   const isEn = lang === Language.EN;
   const [pricing, setPricing] = useState({
     weekdayEn: '99 SR',
@@ -35,18 +36,26 @@ const PlanVisit: React.FC<PlanVisitProps> = ({ lang }) => {
             weekendEn: weekend?.price_en || '139 SR',
             weekendAr: weekend?.price_ar || '١٣٩ ر.س'
           });
-        } else if (error) {
-           if (error.code !== 'PGRST116' && !error.message.includes('schema cache')) {
-            console.warn('Plan Visit fetch failed, using defaults:', error.message);
-          }
         }
-      } catch (err: any) {
+      } catch (err) {
         console.warn('Using static visit pricing as fallback');
       }
     };
 
     fetchPricing();
   }, []);
+
+  const handleAdd = (type: 'weekday' | 'weekend') => {
+    const priceStr = type === 'weekday' ? pricing.weekdayEn : pricing.weekendEn;
+    const price = parseInt(priceStr.replace(/\D/g, '')) || 99;
+    onAddToCart({
+      id: `ticket-${type}`,
+      nameEn: `${type.charAt(0).toUpperCase() + type.slice(1)} Entry Ticket`,
+      nameAr: type === 'weekday' ? 'تذكرة أيام الأسبوع' : 'تذكرة الويكند',
+      price,
+      type: 'ticket'
+    }, true); // Redirection enabled
+  };
 
   return (
     <div className="animate-in slide-in-from-bottom-8 duration-500">
@@ -95,13 +104,25 @@ const PlanVisit: React.FC<PlanVisitProps> = ({ lang }) => {
             </div>
             <h3 className="text-2xl font-black mb-8 uppercase tracking-widest">{isEn ? 'Entry Access' : 'تذكرة الدخول'}</h3>
             <div className="space-y-6 w-full">
-              <div className="bg-black/10 p-6 rounded-3xl border border-white/10 group hover:scale-105 transition-transform">
+              <div className="bg-black/10 p-6 rounded-3xl border border-white/10 group hover:scale-105 transition-all">
                 <div className="text-[10px] font-black opacity-80 uppercase mb-1 tracking-widest">{isEn ? 'Weekdays' : 'أيام الأسبوع'}</div>
-                <div className="text-4xl font-black">{isEn ? pricing.weekdayEn : pricing.weekdayAr}</div>
+                <div className="text-4xl font-black mb-4">{isEn ? pricing.weekdayEn : pricing.weekdayAr}</div>
+                <button 
+                  onClick={() => handleAdd('weekday')}
+                  className="w-full py-4 bg-white text-red-600 rounded-xl font-black text-xs uppercase hover:bg-slate-100 active:scale-95 transition-all"
+                >
+                  {isEn ? 'BOOK NOW' : 'احجز الآن'}
+                </button>
               </div>
-              <div className="bg-black/10 p-6 rounded-3xl border border-white/10 group hover:scale-105 transition-transform">
+              <div className="bg-black/10 p-6 rounded-3xl border border-white/10 group hover:scale-105 transition-all">
                 <div className="text-[10px] font-black opacity-80 uppercase mb-1 tracking-widest">{isEn ? 'Weekends & Holidays' : 'الويكند والإجازات'}</div>
-                <div className="text-4xl font-black">{isEn ? pricing.weekendEn : pricing.weekendAr}</div>
+                <div className="text-4xl font-black mb-4">{isEn ? pricing.weekendEn : pricing.weekendAr}</div>
+                <button 
+                  onClick={() => handleAdd('weekend')}
+                  className="w-full py-4 bg-white text-red-600 rounded-xl font-black text-xs uppercase hover:bg-slate-100 active:scale-95 transition-all"
+                >
+                  {isEn ? 'BOOK NOW' : 'احجز الآن'}
+                </button>
               </div>
             </div>
           </div>

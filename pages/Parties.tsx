@@ -1,18 +1,18 @@
 
 import React, { useEffect, useState } from 'react';
-import { Language, PricingCard } from '../types';
+import { Language, PricingCard, CartItem } from '../types';
 import { PARTY_PACKAGES as STATIC_DEFAULTS } from '../constants';
 import { supabase } from '../lib/supabase.ts';
 import PageBanner from '../components/PageBanner.tsx';
 
 interface PartiesProps {
   lang: Language;
+  onAddToCart: (item: Omit<CartItem, 'quantity'>, redirect?: boolean) => void;
 }
 
-const Parties: React.FC<PartiesProps> = ({ lang }) => {
+const Parties: React.FC<PartiesProps> = ({ lang, onAddToCart }) => {
   const isEn = lang === Language.EN;
   const [packages, setPackages] = useState<PricingCard[]>(STATIC_DEFAULTS);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDynamicPricing = async () => {
@@ -38,21 +38,27 @@ const Parties: React.FC<PartiesProps> = ({ lang }) => {
             return pkg;
           });
           setPackages(updatedPackages);
-        } else if (error) {
-          // If table is missing, we just silently use defaults
-          if (error.code !== 'PGRST116' && !error.message.includes('schema cache')) {
-            console.warn('Parties Pricing fetch failed, using defaults:', error.message);
-          }
         }
-      } catch (err: any) {
+      } catch (err) {
         console.warn('Using static party pricing as fallback');
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchDynamicPricing();
   }, []);
+
+  const handleAdd = (pkg: PricingCard) => {
+    const priceStr = isEn ? pkg.priceEn : pkg.priceAr;
+    const price = parseInt(priceStr.split('/')[0].replace(/\D/g, '')) || 99;
+    
+    onAddToCart({
+      id: `party-${pkg.titleEn.toLowerCase().replace(/\s/g, '-')}`,
+      nameEn: pkg.titleEn,
+      nameAr: pkg.titleAr,
+      price,
+      type: 'package'
+    }, true); // Redirection enabled
+  };
 
   return (
     <div className="overflow-x-hidden">
@@ -98,7 +104,10 @@ const Parties: React.FC<PartiesProps> = ({ lang }) => {
                     ))}
                   </ul>
 
-                  <button className="w-full py-6 bg-[#001F2D] text-white rounded-[1.5rem] font-black text-xl hover:bg-red-600 transition-all shadow-xl active:scale-95 group">
+                  <button 
+                    onClick={() => handleAdd(pkg)}
+                    className="w-full py-6 bg-[#001F2D] text-white rounded-[1.5rem] font-black text-xl hover:bg-red-600 transition-all shadow-xl active:scale-95 group"
+                  >
                     <span className="group-hover:tracking-widest transition-all duration-300">
                       {isEn ? 'BOOK NOW' : 'احجز الآن'}
                     </span>

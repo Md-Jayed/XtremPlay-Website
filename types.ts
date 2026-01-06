@@ -6,7 +6,8 @@ export enum Page {
   SchoolTrips = 'school-trips',
   Gallery = 'gallery',
   Contact = 'contact',
-  Admin = 'admin'
+  Admin = 'admin',
+  Cart = 'cart'
 }
 
 export enum Language {
@@ -33,5 +34,26 @@ export interface PricingCard {
 export interface GalleryImage {
   id: number;
   url: string;
+  created_at?: string;
+}
+
+export interface CartItem {
+  id: string;
+  nameEn: string;
+  nameAr: string;
+  price: number;
+  quantity: number;
+  type: 'ticket' | 'package';
+}
+
+export interface Order {
+  id?: number;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  items: CartItem[];
+  total: number;
+  status: 'pending' | 'completed' | 'cancelled';
+  payment_method: 'cash';
   created_at?: string;
 }
