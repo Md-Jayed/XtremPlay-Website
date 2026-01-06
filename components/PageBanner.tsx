@@ -19,13 +19,14 @@ const PageBanner: React.FC<PageBannerProps> = ({
         <img 
           src={bgImage} 
           className="w-full h-full object-cover opacity-60 animate-zoom-bg" 
-          alt="Banner Background" 
+          alt="" 
+          aria-hidden="true"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/40 to-slate-950/80"></div>
       </div>
 
       {/* Decorative Dots inspired by screenshot */}
-      <div className="absolute inset-0 z-10 pointer-events-none">
+      <div className="absolute inset-0 z-10 pointer-events-none" aria-hidden="true">
         <div className="absolute top-1/4 left-1/3 w-3 h-3 bg-red-600 rounded-full animate-float delay-100 border border-white/20"></div>
         <div className="absolute bottom-1/3 left-1/4 w-4 h-4 bg-[#001F2D] rounded-full animate-float delay-300 border border-white/20"></div>
         <div className="absolute top-1/3 right-1/4 w-3 h-3 bg-red-600 rounded-full animate-float delay-500 border border-white/20"></div>

@@ -21,23 +21,28 @@ const Header: React.FC<HeaderProps> = ({ lang, setLang, currentPage, setCurrentP
     <header className="bg-white fixed top-0 left-0 right-0 z-[100] h-20 shadow-sm border-b border-slate-100">
       <div className="container mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
         {/* Logo */}
-        <div 
+        <button 
           className="flex items-center cursor-pointer group shrink-0"
           onClick={() => { setCurrentPage(Page.Home); setIsMenuOpen(false); }}
+          aria-label={lang === Language.EN ? "Go to Homepage" : "الذهاب إلى الصفحة الرئيسية"}
         >
           <img 
             src="https://static.wixstatic.com/media/aa4fce_e5b1003f2b574fb391b0321341f54d5d~mv2.png/v1/fill/w_186,h_83,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/logo.png" 
             alt="Xtreme Play Logo" 
             className="h-10 md:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
           />
-        </div>
+        </button>
 
         {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center space-x-6 rtl:space-x-reverse mx-8">
+        <nav 
+          className="hidden lg:flex items-center space-x-6 rtl:space-x-reverse mx-8"
+          aria-label={lang === Language.EN ? "Main Navigation" : "التنقل الرئيسي"}
+        >
           {NAV_ITEMS.map((item) => (
             <button
               key={item.id}
               onClick={() => setCurrentPage(item.id)}
+              aria-current={currentPage === item.id ? 'page' : undefined}
               className={`text-[12px] font-bold uppercase tracking-wider transition-all duration-200 ${
                 currentPage === item.id 
                 ? 'text-red-600' 
@@ -53,6 +58,7 @@ const Header: React.FC<HeaderProps> = ({ lang, setLang, currentPage, setCurrentP
         <div className="flex items-center space-x-3 rtl:space-x-reverse shrink-0">
           <button
             onClick={toggleLang}
+            aria-label={lang === Language.EN ? "Switch to Arabic" : "التغيير إلى الإنجليزية"}
             className="bg-[#E2352B] text-white px-4 md:px-8 py-2 md:py-2.5 rounded-lg font-black text-xs md:text-sm uppercase transition-all hover:brightness-110 active:scale-95 shadow-md"
           >
             {lang === Language.EN ? 'عربي' : 'English'}
@@ -62,16 +68,22 @@ const Header: React.FC<HeaderProps> = ({ lang, setLang, currentPage, setCurrentP
           <button 
             className="lg:hidden p-2 text-slate-900 focus:outline-none"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
+            aria-label={isMenuOpen ? (lang === Language.EN ? "Close Menu" : "إغلاق القائمة") : (lang === Language.EN ? "Open Menu" : "فتح القائمة")}
           >
-            <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars-staggered'} text-2xl`}></i>
+            <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars-staggered'} text-2xl`} aria-hidden="true"></i>
           </button>
         </div>
       </div>
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className="lg:hidden absolute top-20 left-0 w-full bg-white shadow-2xl py-8 px-6 animate-in slide-in-from-top-4 duration-300">
-          <div className="flex flex-col space-y-2">
+        <div 
+          id="mobile-menu"
+          className="lg:hidden absolute top-20 left-0 w-full bg-white shadow-2xl py-8 px-6 animate-in slide-in-from-top-4 duration-300"
+        >
+          <nav className="flex flex-col space-y-2" aria-label={lang === Language.EN ? "Mobile Navigation" : "تنقل الجوال"}>
             {NAV_ITEMS.map((item) => (
               <button
                 key={item.id}
@@ -79,6 +91,7 @@ const Header: React.FC<HeaderProps> = ({ lang, setLang, currentPage, setCurrentP
                   setCurrentPage(item.id);
                   setIsMenuOpen(false);
                 }}
+                aria-current={currentPage === item.id ? 'page' : undefined}
                 className={`w-full text-left rtl:text-right px-6 py-4 rounded-xl text-lg font-black uppercase tracking-widest transition-colors ${
                   currentPage === item.id 
                   ? 'bg-red-600 text-white shadow-lg' 
@@ -88,7 +101,7 @@ const Header: React.FC<HeaderProps> = ({ lang, setLang, currentPage, setCurrentP
                 {lang === Language.EN ? item.labelEn : item.labelAr}
               </button>
             ))}
-          </div>
+          </nav>
         </div>
       )}
     </header>

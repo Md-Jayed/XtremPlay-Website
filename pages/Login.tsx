@@ -92,7 +92,7 @@ const Login: React.FC<LoginProps> = ({ lang, onLoginSuccess, onCancel }) => {
     <div className="min-h-[80vh] flex items-center justify-center bg-slate-50 p-6">
       <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl p-10 border border-slate-100">
         <div className="text-center mb-10">
-          <div className="w-20 h-20 bg-red-600 rounded-3xl flex items-center justify-center mx-auto mb-6 rotate-3">
+          <div className="w-20 h-20 bg-red-600 rounded-3xl flex items-center justify-center mx-auto mb-6 rotate-3" aria-hidden="true">
             <i className={`fas ${view === 'login' ? 'fa-lock' : 'fa-envelope-open-text'} text-3xl text-white`}></i>
           </div>
           <h2 className="text-3xl font-black text-slate-900 mb-2">
@@ -110,19 +110,24 @@ const Login: React.FC<LoginProps> = ({ lang, onLoginSuccess, onCancel }) => {
         {view === 'login' ? (
           <form onSubmit={handleLogin} className="space-y-6">
             {error && (
-              <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-bold border border-red-100 animate-shake text-center whitespace-pre-line">
+              <div 
+                className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-bold border border-red-100 animate-shake text-center whitespace-pre-line"
+                role="alert"
+              >
                 {error}
               </div>
             )}
             
             <div className="space-y-2">
-              <label className="text-xs font-black uppercase text-slate-400 tracking-widest px-1">
+              <label htmlFor="login-email" className="text-xs font-black uppercase text-slate-400 tracking-widest px-1 block">
                 {isEn ? 'Email Address' : 'البريد الإلكتروني'}
               </label>
               <input 
                 required 
+                id="login-email"
                 type="email" 
                 value={email}
+                autoComplete="email"
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 focus:border-red-600 outline-none transition-all font-bold" 
                 placeholder="jayed@gmail.com"
@@ -131,7 +136,7 @@ const Login: React.FC<LoginProps> = ({ lang, onLoginSuccess, onCancel }) => {
 
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label className="text-xs font-black uppercase text-slate-400 tracking-widest">
+                <label htmlFor="login-password" className="text-xs font-black uppercase text-slate-400 tracking-widest block">
                   {isEn ? 'Password' : 'كلمة المرور'}
                 </label>
                 <button 
@@ -144,11 +149,13 @@ const Login: React.FC<LoginProps> = ({ lang, onLoginSuccess, onCancel }) => {
               </div>
               <input 
                 required 
+                id="login-password"
                 type="password" 
                 value={password}
+                autoComplete="current-password"
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 focus:border-red-600 outline-none transition-all font-bold" 
-                placeholder="12345678"
+                placeholder="********"
               />
             </div>
 
@@ -159,7 +166,7 @@ const Login: React.FC<LoginProps> = ({ lang, onLoginSuccess, onCancel }) => {
                 className="w-full py-5 bg-red-600 text-white rounded-2xl text-xl font-black shadow-xl hover:bg-red-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
-                  <i className="fas fa-spinner fa-spin"></i>
+                  <i className="fas fa-spinner fa-spin" aria-hidden="true"></i>
                 ) : (
                   isEn ? 'SIGN IN' : 'تسجيل الدخول'
                 )}
@@ -176,24 +183,26 @@ const Login: React.FC<LoginProps> = ({ lang, onLoginSuccess, onCancel }) => {
         ) : (
           <form onSubmit={handleResetPassword} className="space-y-6">
             {error && (
-              <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-bold border border-red-100 animate-shake text-center">
+              <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-bold border border-red-100 animate-shake text-center" role="alert">
                 {error}
               </div>
             )}
             {success && (
-              <div className="bg-green-50 text-green-600 p-4 rounded-xl text-sm font-bold border border-green-100 text-center">
+              <div className="bg-green-50 text-green-600 p-4 rounded-xl text-sm font-bold border border-green-100 text-center" role="status">
                 {success}
               </div>
             )}
             
             <div className="space-y-2">
-              <label className="text-xs font-black uppercase text-slate-400 tracking-widest px-1">
+              <label htmlFor="reset-email" className="text-xs font-black uppercase text-slate-400 tracking-widest px-1 block">
                 {isEn ? 'Email Address' : 'البريد الإلكتروني'}
               </label>
               <input 
                 required 
+                id="reset-email"
                 type="email" 
                 value={email}
+                autoComplete="email"
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 focus:border-red-600 outline-none transition-all font-bold" 
                 placeholder="jayed@gmail.com"
@@ -207,7 +216,7 @@ const Login: React.FC<LoginProps> = ({ lang, onLoginSuccess, onCancel }) => {
                 className="w-full py-5 bg-red-600 text-white rounded-2xl text-xl font-black shadow-xl hover:bg-red-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
-                  <i className="fas fa-spinner fa-spin"></i>
+                  <i className="fas fa-spinner fa-spin" aria-hidden="true"></i>
                 ) : (
                   isEn ? 'SEND RESET LINK' : 'إرسال رابط التعيين'
                 )}

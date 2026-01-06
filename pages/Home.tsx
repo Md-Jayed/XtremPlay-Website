@@ -13,8 +13,8 @@ const Home: React.FC<HomeProps> = ({ lang, onNavigate }) => {
   return (
     <div className="overflow-x-hidden">
       {/* Dynamic Hero Section with Video Background */}
-      <section className="relative min-h-[calc(100dvh-5rem)] flex items-center overflow-hidden py-20 sm:py-28 lg:py-32">
-        <div className="absolute inset-0 z-0">
+      <section className="relative min-h-[calc(100dvh-5rem)] flex items-center overflow-hidden py-20 sm:py-28 lg:py-32" aria-label={isEn ? "Hero Section" : "قسم البداية"}>
+        <div className="absolute inset-0 z-0" aria-hidden="true">
           <video
             autoPlay
             muted
@@ -24,7 +24,6 @@ const Home: React.FC<HomeProps> = ({ lang, onNavigate }) => {
             poster="https://images.unsplash.com/photo-1519331379826-f10be5486c6f?q=80&w=2070&auto=format&fit=crop"
           >
             <source src="https://video.wixstatic.com/video/673ddf_991d5e53948b4078a1dfbfa911252cd0/1080p/mp4/file.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
           </video>
           <div className="absolute inset-0 bg-black/50 lg:bg-gradient-to-r lg:from-slate-950/95 lg:via-slate-950/40 lg:to-transparent rtl:lg:bg-gradient-to-l"></div>
         </div>
@@ -33,7 +32,7 @@ const Home: React.FC<HomeProps> = ({ lang, onNavigate }) => {
           <div className="max-w-4xl space-y-4 md:space-y-6 lg:space-y-8">
             {/* Location Badge */}
             <div className="inline-flex items-center space-x-2 rtl:space-x-reverse bg-[#E2352B] px-3 md:px-5 py-1.5 rounded-full text-white text-[10px] md:text-xs font-black uppercase tracking-widest shadow-xl animate-reveal-down">
-              <span className="h-2 w-2 rounded-full bg-white animate-pulse"></span>
+              <span className="h-2 w-2 rounded-full bg-white animate-pulse" aria-hidden="true"></span>
               <span>{isEn ? 'Now Open in Jeddah' : 'مفتوح الآن في جدة'}</span>
             </div>
             
@@ -77,16 +76,20 @@ const Home: React.FC<HomeProps> = ({ lang, onNavigate }) => {
           </div>
         </div>
 
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/30 animate-bounce cursor-pointer hidden md:block" onClick={() => window.scrollTo({top: window.innerHeight - 80, behavior: 'smooth'})}>
-          <i className="fas fa-chevron-down text-2xl"></i>
-        </div>
+        <button 
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/30 animate-bounce cursor-pointer hidden md:block" 
+          onClick={() => window.scrollTo({top: window.innerHeight - 80, behavior: 'smooth'})}
+          aria-label={isEn ? "Scroll down" : "انتقل للأسفل"}
+        >
+          <i className="fas fa-chevron-down text-2xl" aria-hidden="true"></i>
+        </button>
       </section>
 
       {/* Services Section */}
-      <section className="py-24 md:py-32 bg-[#001F2D] text-white overflow-hidden">
+      <section className="py-24 md:py-32 bg-[#001F2D] text-white overflow-hidden" aria-labelledby="services-heading">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16 md:mb-24 max-w-2xl mx-auto space-y-4 animate-reveal-up">
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight italic uppercase">
+            <h2 id="services-heading" className="text-3xl md:text-5xl font-black tracking-tight italic uppercase">
               {isEn ? 'UNLEASH THE FUN!' : 'أطلق العنان للمرح!'}
             </h2>
             <p className="text-slate-400 text-lg">
@@ -124,12 +127,12 @@ const Home: React.FC<HomeProps> = ({ lang, onNavigate }) => {
                 delay: 'delay-300'
               },
             ].map((service, idx) => (
-              <div 
+              <article 
                 key={idx} 
                 className={`group flex flex-col items-center text-center p-8 lg:p-12 bg-white/5 border border-white/10 rounded-[2.5rem] hover:bg-white/10 transition-all duration-500 hover:-translate-y-2 shadow-2xl animate-reveal-up ${service.delay}`}
               >
                 <div className="mb-8 w-20 h-20 bg-[#E2352B] rounded-2xl flex items-center justify-center rotate-3 group-hover:rotate-12 transition-transform shadow-xl shadow-red-600/20 animate-float">
-                  <i className={`fas ${service.icon} text-3xl text-white`}></i>
+                  <i className={`fas ${service.icon} text-3xl text-white`} aria-hidden="true"></i>
                 </div>
                 <h3 className="text-2xl lg:text-3xl font-black mb-4 uppercase">{isEn ? service.titleEn : service.titleAr}</h3>
                 <p className="text-slate-400 mb-8 leading-relaxed text-sm lg:text-base">
@@ -141,21 +144,21 @@ const Home: React.FC<HomeProps> = ({ lang, onNavigate }) => {
                 >
                   {isEn ? 'LEARN MORE' : 'لمزيد من المعلومات'}
                 </button>
-              </div>
+              </article>
             ))}
           </div>
         </div>
       </section>
 
       {/* Two Fun Parks Section */}
-      <section className="py-24 md:py-32 bg-white overflow-hidden">
+      <section className="py-24 md:py-32 bg-white overflow-hidden" aria-labelledby="parks-heading">
         <div className="container mx-auto px-6">
           <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
             <div className="w-full lg:w-1/2 space-y-6 md:space-y-8 animate-reveal-right">
               <div className="inline-block">
-                <h2 className="text-3xl md:text-5xl font-black text-[#001F2D] relative z-10 uppercase italic">
+                <h2 id="parks-heading" className="text-3xl md:text-5xl font-black text-[#001F2D] relative z-10 uppercase italic">
                   {isEn ? 'Two Fun Parks In One' : 'منتزهان في مكان واحد'}
-                  <div className="absolute -bottom-2 left-0 w-full h-3 md:h-4 bg-[#E2352B]/10 -z-10"></div>
+                  <div className="absolute -bottom-2 left-0 w-full h-3 md:h-4 bg-[#E2352B]/10 -z-10" aria-hidden="true"></div>
                 </h2>
               </div>
               <div className="space-y-4 text-base md:text-lg text-slate-600 leading-relaxed">
@@ -171,14 +174,14 @@ const Home: React.FC<HomeProps> = ({ lang, onNavigate }) => {
                 </p>
               </div>
               
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4" role="list">
                 {[
                   { icon: 'fa-basketball', label: isEn ? 'Basketball' : 'كرة سلة', delay: 'delay-100' },
                   { icon: 'fa-volleyball', label: isEn ? 'Volleyball' : 'كرة طائرة', delay: 'delay-200' },
                   { icon: 'fa-wind', label: isEn ? 'Giant Airbag' : 'وسادة هوائية', delay: 'delay-300' },
                 ].map((item, i) => (
-                  <div key={i} className={`flex items-center space-x-2 md:space-x-3 rtl:space-x-reverse bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm animate-reveal-up ${item.delay}`}>
-                    <i className={`fas ${item.icon} text-[#E2352B] animate-float`}></i>
+                  <div key={i} role="listitem" className={`flex items-center space-x-2 md:space-x-3 rtl:space-x-reverse bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm animate-reveal-up ${item.delay}`}>
+                    <i className={`fas ${item.icon} text-[#E2352B] animate-float`} aria-hidden="true"></i>
                     <span className="font-black uppercase text-[10px] md:text-xs text-[#001F2D]">{item.label}</span>
                   </div>
                 ))}
@@ -189,7 +192,7 @@ const Home: React.FC<HomeProps> = ({ lang, onNavigate }) => {
               <div className="relative z-10 rounded-[3rem] md:rounded-[4rem] overflow-hidden rotate-2 shadow-2xl border-[10px] md:border-[15px] border-white transition-transform duration-500 hover:rotate-0 group">
                 <img 
                   src="https://static.wixstatic.com/media/673ddf_6a5cd586db4442638dff2bd18f1db3c3~mv2.jpg/v1/crop/x_643,y_0,w_4475,h_3840/fill/w_416,h_357,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/2T7A9895.jpg" 
-                  alt="Parks" 
+                  alt={isEn ? "Excited family jumping at Xtreme Play park" : "عائلة متحمسة تقفز في منتزه إكستريم بلاي"} 
                   className="w-full aspect-[4/5] object-cover transition-transform duration-1000 group-hover:scale-110"
                 />
               </div>
@@ -203,8 +206,8 @@ const Home: React.FC<HomeProps> = ({ lang, onNavigate }) => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 md:py-32 bg-[#E2352B] relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
+      <section className="py-24 md:py-32 bg-[#E2352B] relative overflow-hidden" aria-labelledby="cta-heading">
+        <div className="absolute inset-0 opacity-10 pointer-events-none" aria-hidden="true">
            <div className="grid grid-cols-4 md:grid-cols-6 gap-8 transform -rotate-12 scale-150">
              {Array.from({length: 36}).map((_, i) => (
                <i key={i} className="fas fa-bolt text-7xl md:text-9xl text-white animate-pulse-soft" style={{animationDelay: `${i * 100}ms`}}></i>
@@ -212,7 +215,7 @@ const Home: React.FC<HomeProps> = ({ lang, onNavigate }) => {
            </div>
         </div>
         <div className="container mx-auto px-6 text-center relative z-10 animate-reveal-up">
-           <h2 className="text-4xl md:text-7xl font-black text-white mb-8 italic uppercase leading-tight drop-shadow-xl">
+           <h2 id="cta-heading" className="text-4xl md:text-7xl font-black text-white mb-8 italic uppercase leading-tight drop-shadow-xl">
              {isEn ? 'Ready to experience the rush?' : 'هل أنت مستعد لتجربة الإثارة؟'}
            </h2>
            <button 

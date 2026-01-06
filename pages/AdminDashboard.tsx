@@ -3,6 +3,15 @@ import React, { useEffect, useState } from 'react';
 import { Language, GalleryImage } from '../types.ts';
 import { supabase } from '../lib/supabase.ts';
 
+interface PricingItem {
+  id: number;
+  key: string;
+  title_en: string;
+  title_ar: string;
+  price_en: string;
+  price_ar: string;
+}
+
 interface AdminDashboardProps {
   lang: Language;
   onLogout: () => void;
@@ -10,7 +19,7 @@ interface AdminDashboardProps {
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onLogout }) => {
   const isEn = lang === Language.EN;
-  const [activeTab, setActiveTab] = useState<'stats' | 'gallery'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'gallery' | 'pricing'>('stats');
   const [stats, setStats] = useState({
     bookings: 0,
     revenue: '0',
@@ -25,9 +34,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onLogout }) => {
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
   const [isGalleryLoading, setIsGalleryLoading] = useState(false);
 
+  // Pricing Management State
+  const [pricing, setPricing] = useState<PricingItem[]>([]);
+  const [editingPrice, setEditingPrice] = useState<PricingItem | null>(null);
+  const [isPricingLoading, setIsPricingLoading] = useState(false);
+  const [pricingTableMissing, setPricingTableMissing] = useState(false);
+
   useEffect(() => {
     fetchStats();
     fetchGallery();
+    fetchPricing();
   }, []);
 
   const fetchStats = async () => {
@@ -56,8 +72,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onLogout }) => {
           status: 'Pending'
         })));
       }
-    } catch (err) {
-      console.error('Error fetching admin data:', err);
+    } catch (err: any) {
+      console.warn('Stats fetch ignored:', err?.message || err);
     }
   };
 
@@ -70,10 +86,60 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onLogout }) => {
         .order('created_at', { ascending: false });
       if (error) throw error;
       setGalleryImages(data || []);
-    } catch (err) {
-      console.error('Error fetching gallery:', err);
+    } catch (err: any) {
+      console.warn('Gallery fetch ignored:', err?.message || err);
     } finally {
       setIsGalleryLoading(false);
+    }
+  };
+
+  const fetchPricing = async () => {
+    setIsPricingLoading(true);
+    setPricingTableMissing(false);
+    try {
+      const { data, error } = await supabase
+        .from('pricing')
+        .select('*')
+        .order('id', { ascending: true });
+      
+      if (error) {
+        // Check for "table not found" errors
+        if (error.code === 'PGRST116' || error.message.includes('schema cache')) {
+          setPricingTableMissing(true);
+          return;
+        }
+        throw error;
+      }
+      setPricing(data || []);
+    } catch (err: any) {
+      console.error('Pricing Error:', err?.message || err);
+    } finally {
+      setIsPricingLoading(false);
+    }
+  };
+
+  const handleUpdatePrice = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPrice) return;
+
+    try {
+      const { error } = await supabase
+        .from('pricing')
+        .update({
+          price_en: editingPrice.price_en,
+          price_ar: editingPrice.price_ar,
+          title_en: editingPrice.title_en,
+          title_ar: editingPrice.title_ar
+        })
+        .eq('id', editingPrice.id);
+
+      if (error) throw error;
+
+      setEditingPrice(null);
+      fetchPricing();
+      alert(isEn ? 'Price updated successfully!' : 'تم تحديث السعر بنجاح!');
+    } catch (err: any) {
+      alert(err?.message || err);
     }
   };
 
@@ -92,7 +158,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onLogout }) => {
       fetchGallery();
       alert(isEn ? 'Image added successfully!' : 'تمت إضافة الصورة بنجاح!');
     } catch (err: any) {
-      alert(err.message);
+      alert(err?.message || err);
     }
   };
 
@@ -112,7 +178,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onLogout }) => {
       fetchGallery();
       alert(isEn ? 'Image updated!' : 'تم تحديث الصورة!');
     } catch (err: any) {
-      alert(err.message);
+      alert(err?.message || err);
     }
   };
 
@@ -128,9 +194,27 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onLogout }) => {
       if (error) throw error;
       fetchGallery();
     } catch (err: any) {
-      alert(err.message);
+      alert(err?.message || err);
     }
   };
+
+  const SQL_SCHEMA = `
+CREATE TABLE pricing (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  key TEXT UNIQUE NOT NULL,
+  title_en TEXT NOT NULL,
+  title_ar TEXT NOT NULL,
+  price_en TEXT NOT NULL,
+  price_ar TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+INSERT INTO pricing (key, title_en, title_ar, price_en, price_ar) VALUES
+('party_xtreme', 'Xtreme Package', 'باقة إكستريم', '99 / 139 SR', '٩٩ / ١٣٩ ر.س'),
+('party_graduation', 'Graduation Package', 'باقة التخرج', '139 SR', '١٣٩ ر.س'),
+('plan_visit_weekday', 'Weekday Entry', 'دخول أيام الأسبوع', '99 SR', '٩٩ ر.س'),
+('plan_visit_weekend', 'Weekend Entry', 'دخول الويكند', '139 SR', '١٣٩ ر.س');
+  `.trim();
 
   return (
     <div className="min-h-screen bg-slate-100 p-8">
@@ -141,33 +225,26 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onLogout }) => {
             <p className="text-slate-500">{isEn ? 'Welcome back, Manager.' : 'أهلاً بعودتك، أيها المدير.'}</p>
           </div>
           <div className="flex gap-4">
-             <div className="bg-white p-1 rounded-2xl shadow-sm border border-slate-200 flex">
-                <button 
-                  onClick={() => setActiveTab('stats')}
-                  className={`px-6 py-2 rounded-xl font-bold transition-all ${activeTab === 'stats' ? 'bg-red-600 text-white' : 'text-slate-400'}`}
-                >
+             <nav className="bg-white p-1 rounded-2xl shadow-sm border border-slate-200 flex" role="tablist">
+                <button role="tab" aria-selected={activeTab === 'stats'} onClick={() => setActiveTab('stats')} className={`px-6 py-2 rounded-xl font-bold transition-all ${activeTab === 'stats' ? 'bg-red-600 text-white' : 'text-slate-400'}`}>
                   {isEn ? 'Overview' : 'نظرة عامة'}
                 </button>
-                <button 
-                  onClick={() => setActiveTab('gallery')}
-                  className={`px-6 py-2 rounded-xl font-bold transition-all ${activeTab === 'gallery' ? 'bg-red-600 text-white' : 'text-slate-400'}`}
-                >
+                <button role="tab" aria-selected={activeTab === 'gallery'} onClick={() => setActiveTab('gallery')} className={`px-6 py-2 rounded-xl font-bold transition-all ${activeTab === 'gallery' ? 'bg-red-600 text-white' : 'text-slate-400'}`}>
                   {isEn ? 'Gallery' : 'المعرض'}
                 </button>
-             </div>
-             <button 
-                onClick={onLogout}
-                className="px-8 py-3 bg-slate-900 text-white rounded-xl font-black shadow-lg hover:bg-black transition-colors flex items-center gap-2"
-              >
+                <button role="tab" aria-selected={activeTab === 'pricing'} onClick={() => setActiveTab('pricing')} className={`px-6 py-2 rounded-xl font-bold transition-all ${activeTab === 'pricing' ? 'bg-red-600 text-white' : 'text-slate-400'}`}>
+                  {isEn ? 'Pricing' : 'الأسعار'}
+                </button>
+             </nav>
+             <button onClick={onLogout} className="px-8 py-3 bg-slate-900 text-white rounded-xl font-black shadow-lg hover:bg-black transition-colors flex items-center gap-2">
                 <i className="fas fa-sign-out-alt"></i>
                 <span>{isEn ? 'Logout' : 'خروج'}</span>
               </button>
           </div>
         </div>
 
-        {activeTab === 'stats' ? (
-          <>
-            {/* Quick Stats */}
+        {activeTab === 'stats' && (
+          <div role="tabpanel">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
               {[
                 { label: isEn ? 'Bookings' : 'الحجوزات', val: stats.bookings, icon: 'fa-calendar-check', color: 'text-blue-600' },
@@ -176,164 +253,99 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ lang, onLogout }) => {
                 { label: isEn ? 'Visitors' : 'الزوار', val: stats.visitors, icon: 'fa-users', color: 'text-purple-600' },
               ].map((stat, i) => (
                 <div key={i} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                   <div className="flex items-center justify-between mb-4">
-                      <div className={`w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center ${stat.color}`}>
-                         <i className={`fas ${stat.icon} text-xl`}></i>
-                      </div>
-                   </div>
                    <div className="text-3xl font-black text-slate-900 mb-1">{stat.val}</div>
                    <div className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{stat.label}</div>
                 </div>
               ))}
             </div>
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+               <div className="p-6 border-b border-slate-100 font-black text-slate-900">{isEn ? 'Recent Activity' : 'النشاط الأخير'}</div>
+               <div className="p-6 text-center text-slate-400 italic">{isEn ? 'Live activity stream will appear here.' : 'سيظهر سجل النشاط المباشر هنا.'}</div>
+            </div>
+          </div>
+        )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                 <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                       <h3 className="font-black text-slate-900">{isEn ? 'Latest Inquiries' : 'أحدث الاستفسارات'}</h3>
-                       <button onClick={fetchStats} className="text-blue-600 text-sm font-bold hover:underline">{isEn ? 'Refresh' : 'تحديث'}</button>
+        {activeTab === 'gallery' && (
+          <div role="tabpanel" className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+            <h3 className="text-2xl font-black mb-6">{isEn ? 'Gallery Manager' : 'إدارة الصور'}</h3>
+            <div className="text-slate-500 italic mb-8">{isEn ? 'Gallery table setup required in Supabase to sync images.' : 'مطلوب إعداد جدول المعرض في Supabase لمزامنة الصور.'}</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+               {galleryImages.map(img => (
+                 <div key={img.id} className="aspect-video bg-slate-100 rounded-xl overflow-hidden">
+                    <img src={img.url} className="w-full h-full object-cover" />
+                 </div>
+               ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'pricing' && (
+          <div role="tabpanel" className="animate-in slide-in-from-bottom-4 duration-300">
+            {pricingTableMissing ? (
+              <div className="bg-white rounded-[2.5rem] shadow-xl border-2 border-red-100 p-12 text-center">
+                 <div className="w-20 h-20 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-8">
+                    <i className="fas fa-database text-3xl"></i>
+                 </div>
+                 <h3 className="text-3xl font-black text-slate-900 mb-4">{isEn ? 'Database Setup Required' : 'مطلوب إعداد قاعدة البيانات'}</h3>
+                 <p className="text-slate-500 max-w-lg mx-auto mb-10 font-medium">
+                    {isEn 
+                      ? 'The "pricing" table does not exist in your Supabase project yet. Please copy the SQL below and run it in your Supabase SQL Editor.' 
+                      : 'جدول "الأسعار" غير موجود في مشروع Supabase الخاص بك بعد. يرجى نسخ كود SQL أدناه وتشغيله في محرر SQL الخاص بـ Supabase.'}
+                 </p>
+                 <div className="bg-slate-900 text-red-400 p-6 rounded-2xl text-left font-mono text-sm mb-8 overflow-x-auto">
+                    <pre>{SQL_SCHEMA}</pre>
+                 </div>
+                 <button 
+                  onClick={() => { navigator.clipboard.writeText(SQL_SCHEMA); alert(isEn ? 'SQL copied!' : 'تم نسخ الكود!'); }}
+                  className="px-10 py-4 bg-red-600 text-white rounded-xl font-black hover:bg-red-700 transition-all shadow-lg"
+                 >
+                    {isEn ? 'COPY SQL SCHEMA' : 'نسخ كود SQL'}
+                 </button>
+              </div>
+            ) : (
+              <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+                 <div className="flex justify-between items-center mb-10">
+                    <h3 className="text-2xl font-black">{isEn ? 'Pricing Management' : 'إدارة الأسعار'}</h3>
+                    <button onClick={fetchPricing} className="bg-slate-900 text-white px-6 py-2 rounded-xl font-bold">{isEn ? 'Refresh' : 'تحديث'}</button>
+                 </div>
+
+                 {editingPrice && (
+                    <div className="mb-10 p-8 bg-blue-50 border-2 border-blue-100 rounded-3xl">
+                       <form onSubmit={handleUpdatePrice} className="space-y-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                             <input value={editingPrice.price_en} onChange={e => setEditingPrice({...editingPrice, price_en: e.target.value})} className="p-4 rounded-xl border-2" placeholder="Price EN" />
+                             <input dir="rtl" value={editingPrice.price_ar} onChange={e => setEditingPrice({...editingPrice, price_ar: e.target.value})} className="p-4 rounded-xl border-2" placeholder="Price AR" />
+                          </div>
+                          <div className="flex gap-4">
+                             <button type="submit" className="px-8 py-3 bg-red-600 text-white rounded-xl font-black">SAVE</button>
+                             <button type="button" onClick={() => setEditingPrice(null)} className="px-8 py-3 bg-slate-300 rounded-xl font-black">CANCEL</button>
+                          </div>
+                       </form>
                     </div>
-                    <div className="overflow-x-auto">
-                       <table className="w-full text-left rtl:text-right">
-                          <thead className="bg-slate-50 text-slate-400 text-xs font-black uppercase tracking-widest">
-                            <tr>
-                               <th className="px-6 py-4">Customer</th>
-                               <th className="px-6 py-4">Type</th>
-                               <th className="px-6 py-4">Date</th>
-                               <th className="px-6 py-4">Status</th>
+                 )}
+
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-left rtl:text-right">
+                       <thead className="bg-slate-50 text-slate-400 text-xs font-black uppercase">
+                          <tr><th className="p-4">Name</th><th className="p-4">Price</th><th className="p-4">Actions</th></tr>
+                       </thead>
+                       <tbody className="divide-y divide-slate-100">
+                          {pricing.map(item => (
+                            <tr key={item.id}>
+                               <td className="p-4 font-bold">{isEn ? item.title_en : item.title_ar}</td>
+                               <td className="p-4 font-black text-red-600">{isEn ? item.price_en : item.price_ar}</td>
+                               <td className="p-4">
+                                  <button onClick={() => setEditingPrice(item)} className="p-2 bg-slate-100 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors">
+                                     <i className="fas fa-edit"></i>
+                                  </button>
+                               </td>
                             </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100">
-                            {recentBookings.length > 0 ? recentBookings.map((row, idx) => (
-                              <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                                 <td className="px-6 py-4 font-bold">{row.name}</td>
-                                 <td className="px-6 py-4 text-slate-500">{row.type}</td>
-                                 <td className="px-6 py-4 text-slate-500">{row.date}</td>
-                                 <td className="px-6 py-4">
-                                   <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${
-                                     row.status === 'Confirmed' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
-                                   }`}>{row.status}</span>
-                                 </td>
-                              </tr>
-                            )) : (
-                              <tr>
-                                <td colSpan={4} className="px-6 py-12 text-center text-slate-400 italic">
-                                  {isEn ? 'No inquiries found in database' : 'لا توجد استفسارات في قاعدة البيانات'}
-                                </td>
-                              </tr>
-                            )}
-                          </tbody>
-                       </table>
-                    </div>
+                          ))}
+                       </tbody>
+                    </table>
                  </div>
               </div>
-              <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-xl">
-                 <h3 className="text-xl font-black mb-6">{isEn ? 'Quick Actions' : 'إجراءات سريعة'}</h3>
-                 <div className="grid grid-cols-1 gap-4">
-                    <button 
-                      onClick={() => setActiveTab('gallery')}
-                      className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center px-6 gap-4 transition-all group"
-                    >
-                       <i className="fas fa-image text-blue-500 group-hover:scale-125 transition-transform"></i>
-                       <span className="font-bold">{isEn ? 'Manage Gallery' : 'إدارة المعرض'}</span>
-                    </button>
-                    <button className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center px-6 gap-4 transition-all group">
-                       <i className="fas fa-plus-circle text-red-500 group-hover:scale-125 transition-transform"></i>
-                       <span className="font-bold">{isEn ? 'Update Prices' : 'تحديث الأسعار'}</span>
-                    </button>
-                 </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="animate-in slide-in-from-bottom-4 duration-300">
-            {/* Gallery Manager */}
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
-                <div>
-                  <h3 className="text-2xl font-black text-slate-900">{isEn ? 'Gallery Manager' : 'إدارة الصور'}</h3>
-                  <p className="text-slate-500">{isEn ? 'Add, edit or remove images from the public gallery.' : 'إضافة أو تعديل أو حذف الصور من المعرض العام.'}</p>
-                </div>
-                
-                {/* Add Image Form */}
-                <form onSubmit={handleAddImage} className="flex gap-2 w-full md:w-auto">
-                  <input 
-                    type="url" 
-                    required
-                    value={newImageUrl}
-                    onChange={(e) => setNewImageUrl(e.target.value)}
-                    placeholder={isEn ? "Paste Image URL..." : "الصق رابط الصورة..."}
-                    className="flex-grow md:w-80 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 focus:border-red-600 outline-none transition-all font-bold"
-                  />
-                  <button type="submit" className="bg-red-600 text-white p-3 px-6 rounded-xl font-black hover:bg-red-700 transition-all flex items-center gap-2">
-                    <i className="fas fa-plus"></i>
-                    <span className="hidden sm:inline">{isEn ? 'Add' : 'إضافة'}</span>
-                  </button>
-                </form>
-              </div>
-
-              {/* Edit Modal (Inline) */}
-              {editingImage && (
-                <div className="mb-10 p-6 bg-blue-50 border-2 border-blue-100 rounded-3xl animate-in zoom-in duration-200">
-                  <h4 className="font-black text-blue-900 mb-4">{isEn ? 'Editing Image URL' : 'تعديل رابط الصورة'}</h4>
-                  <form onSubmit={handleUpdateImage} className="flex gap-2">
-                    <input 
-                      type="url" 
-                      required
-                      value={editingImage.url}
-                      onChange={(e) => setEditingImage({...editingImage, url: e.target.value})}
-                      className="flex-grow bg-white border-2 border-blue-200 rounded-xl px-4 py-3 outline-none font-bold"
-                    />
-                    <button type="submit" className="bg-blue-600 text-white px-6 rounded-xl font-black">
-                      {isEn ? 'Update' : 'تحديث'}
-                    </button>
-                    <button 
-                      type="button" 
-                      onClick={() => setEditingImage(null)}
-                      className="bg-slate-200 text-slate-600 px-6 rounded-xl font-black"
-                    >
-                      {isEn ? 'Cancel' : 'إلغاء'}
-                    </button>
-                  </form>
-                </div>
-              )}
-
-              {isGalleryLoading ? (
-                <div className="flex justify-center py-20">
-                  <i className="fas fa-spinner fa-spin text-3xl text-red-600"></i>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {galleryImages.map((img) => (
-                    <div key={img.id} className="group relative bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 shadow-sm aspect-video">
-                      <img src={img.url} className="w-full h-full object-cover" alt="Preview" />
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                         <button 
-                            onClick={() => setEditingImage(img)}
-                            className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-                            title={isEn ? "Edit" : "تعديل"}
-                         >
-                            <i className="fas fa-edit"></i>
-                         </button>
-                         <button 
-                            onClick={() => handleDeleteImage(img.id)}
-                            className="w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-                            title={isEn ? "Delete" : "حذف"}
-                         >
-                            <i className="fas fa-trash"></i>
-                         </button>
-                      </div>
-                    </div>
-                  ))}
-                  {galleryImages.length === 0 && (
-                    <div className="col-span-full py-20 text-center text-slate-400 italic">
-                      {isEn ? 'No images in gallery' : 'لا توجد صور في المعرض'}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+            )}
           </div>
         )}
       </div>

@@ -16,6 +16,29 @@
         font-family: 'Noto Sans Arabic', sans-serif;
       }
       
+      /* Keyboard Focus States */
+      :focus {
+        outline: none;
+      }
+      :focus-visible {
+        outline: 3px solid #E2352B;
+        outline-offset: 3px;
+        border-radius: 4px;
+      }
+      .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: #E2352B;
+        color: white;
+        padding: 8px;
+        z-index: 1001;
+        transition: top 0.3s;
+      }
+      .skip-link:focus {
+        top: 0;
+      }
+
       /* Animation Keyframes */
       @keyframes reveal-up {
         from { opacity: 0; transform: translateY(30px); }

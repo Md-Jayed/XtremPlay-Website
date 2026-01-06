@@ -19,6 +19,15 @@ const Gallery: React.FC<GalleryProps> = ({ lang }) => {
     fetchImages();
   }, []);
 
+  // Handle Escape key to close lightbox
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedImg(null);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
+
   const fetchImages = async () => {
     try {
       const { data, error } = await supabase
@@ -44,7 +53,7 @@ const Gallery: React.FC<GalleryProps> = ({ lang }) => {
   };
 
   const GallerySkeleton = () => (
-    <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+    <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6" aria-hidden="true">
       {[...Array(9)].map((_, i) => (
         <div 
           key={i} 
@@ -73,31 +82,32 @@ const Gallery: React.FC<GalleryProps> = ({ lang }) => {
           ) : (
             <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
               {images.map((img, idx) => (
-                <div 
+                <button 
                   key={img.id} 
-                  className={`break-inside-avoid relative group cursor-pointer overflow-hidden rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 animate-reveal-up`}
+                  className={`w-full break-inside-avoid relative group cursor-pointer overflow-hidden rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 animate-reveal-up text-left rtl:text-right`}
                   style={{ animationDelay: `${idx * 50}ms` }}
                   onClick={() => setSelectedImg(img.url)}
+                  aria-label={isEn ? "View larger image" : "عرض الصورة بحجم أكبر"}
                 >
                   <img 
                     src={img.url} 
-                    alt="Gallery item" 
+                    alt={`Gallery item ${idx + 1}`} 
                     className="w-full object-cover group-hover:scale-110 transition-transform duration-700"
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center">
                     <div className="bg-white/20 backdrop-blur-md p-4 rounded-full scale-50 group-hover:scale-100 transition-transform duration-500">
-                      <i className="fas fa-expand-alt text-white text-2xl"></i>
+                      <i className="fas fa-expand-alt text-white text-2xl" aria-hidden="true"></i>
                     </div>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           )}
           
           {!loading && images.length === 0 && (
             <div className="text-center py-32 space-y-4 animate-reveal-up">
-              <i className="fas fa-images text-6xl text-slate-200 animate-float"></i>
+              <i className="fas fa-images text-6xl text-slate-200 animate-float" aria-hidden="true"></i>
               <p className="text-slate-400 font-bold text-xl uppercase tracking-widest">
                 {isEn ? 'No images available' : 'لا توجد صور متاحة'}
               </p>
@@ -110,16 +120,22 @@ const Gallery: React.FC<GalleryProps> = ({ lang }) => {
       {selectedImg && (
         <div 
           className="fixed inset-0 z-[1000] bg-slate-950/95 flex items-center justify-center p-4 md:p-10 backdrop-blur-sm animate-in fade-in duration-300"
+          role="dialog"
+          aria-modal="true"
           onClick={() => setSelectedImg(null)}
         >
-          <button className="absolute top-6 right-6 md:top-10 md:right-10 text-white/50 hover:text-white text-3xl transition-all hover:rotate-90">
-            <i className="fas fa-times"></i>
+          <button 
+            className="absolute top-6 right-6 md:top-10 md:right-10 text-white/50 hover:text-white text-3xl transition-all hover:rotate-90"
+            aria-label={isEn ? "Close lightbox" : "إغلاق المعرض"}
+            autoFocus
+          >
+            <i className="fas fa-times" aria-hidden="true"></i>
           </button>
           <div className="relative group max-w-5xl w-full flex justify-center">
             <img 
               src={selectedImg} 
               className="max-w-full max-h-[85vh] rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 object-contain animate-in zoom-in-95 duration-300" 
-              alt="Expanded" 
+              alt={isEn ? "Enlarged view" : "عرض مكبر"} 
               onClick={(e) => e.stopPropagation()}
             />
           </div>
